@@ -1,98 +1,150 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { AnimatedIcon } from "@/components/animated-icon";
+import { WebBadge } from "@/components/web-badge";
+import { MaxContentWidth, Spacing } from "@/constants/theme";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+const SCREENS: {
+  label: string;
+  href: string;
+  color: string;
+  description: string;
+}[] = [
+  {
+    label: "Explore",
+    href: "/explore",
+    color: "#3B82F6",
+    description: "Browse features & docs",
+  },
+  {
+    label: "Profile",
+    href: "/profile",
+    color: "#E8453C",
+    description: "Your personal profile",
+  },
+  {
+    label: "Notifications",
+    href: "/notifications",
+    color: "#1A9E7A",
+    description: "Alerts & updates",
+  },
+  {
+    label: "Gallery",
+    href: "/gallery",
+    color: "#F59E0B",
+    description: "Sticker collection",
+  },
+  {
+    label: "Settings",
+    href: "/settings",
+    color: "#6C3FC5",
+    description: "App preferences",
+  },
+];
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <View style={styles.root}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.heroSection}>
+            <AnimatedIcon />
+            <Text style={styles.title}>StickerSmash</Text>
+            <Text style={styles.subtitle}>Choose a screen to get started</Text>
+          </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+          <View style={styles.screensGrid}>
+            {SCREENS.map(({ label, href, color, description }) => (
+              <Pressable
+                key={href}
+                onPress={() => router.push(href as any)}
+                style={({ pressed }) => [
+                  styles.screenCard,
+                  { backgroundColor: color },
+                  pressed && styles.screenCardPressed,
+                ]}
+              >
+                <Text style={styles.cardLabel}>{label}</Text>
+                <Text style={styles.cardDescription}>{description}</Text>
+              </Pressable>
+            ))}
+          </View>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          {Platform.OS === "web" && <WebBadge />}
+        </SafeAreaView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: "#0F172A",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
+    width: "100%",
     maxWidth: MaxContentWidth,
+    paddingHorizontal: Spacing.four,
+    paddingBottom: Spacing.six,
+    gap: Spacing.five,
   },
   heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    alignItems: "center",
+    paddingTop: Spacing.six,
+    gap: Spacing.three,
   },
   title: {
-    textAlign: 'center',
+    textAlign: "center",
+    color: "#F8FAFC",
+    fontSize: 48,
+    fontWeight: "700",
+    lineHeight: 52,
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+    textAlign: "center",
+    color: "#94A3B8",
+    fontSize: 16,
+    fontWeight: "500",
   },
-  stepContainer: {
+  screensGrid: {
     gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
+    alignSelf: "stretch",
+  },
+  screenCard: {
     borderRadius: Spacing.four,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.four,
+    gap: Spacing.one,
+  },
+  screenCardPressed: {
+    opacity: 0.82,
+  },
+  cardLabel: {
+    color: "#ffffff",
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  cardDescription: {
+    color: "rgba(255,255,255,0.82)",
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
